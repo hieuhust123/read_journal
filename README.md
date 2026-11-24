@@ -42,6 +42,19 @@ powershell -ExecutionPolicy Bypass -File scripts\install_task.ps1   # daily at 0
 The first run builds the back catalogue (about 55k papers, a few minutes on a GPU). Later runs
 only fetch what is new.
 
+### Daily task
+
+`scripts\install_task.ps1` registers a Task Scheduler task (`ReadJournalDigest`) that runs
+`read_journal.py --open` every day and opens the finished digest in your default browser, usually
+a few minutes after it starts. Details:
+
+- It runs only while you are logged in, because Claude uses your Claude Code login. If the PC was
+  off or asleep at the scheduled time, it runs soon after you log in.
+- It stops after 4 hours. Downloads and embeddings are saved as it goes, so a stopped run loses only
+  that day's page; the next run catches up.
+- Pick another time with `-At 07:30`. Re-run the script after editing it (for example, to drop
+  `--open` if you prefer to open `digests\latest.html` yourself).
+
 ## Everyday use
 
 ```powershell
@@ -54,8 +67,9 @@ only fetch what is new.
 To tune what you see, edit `profile` in `config.yaml`: the `summary` is what Claude reads, the
 `topics` queries drive the ranking, and `avoid` pushes unwanted themes down. Use `--dry-run` to
 preview changes without marking papers as seen; previews go to `digests/preview.html` and never
-overwrite a real digest.
+overwrite a real digest. Add `--open` to see the preview straight away.
 
 Embedding runs in fp32: on GTX 16xx laptop GPUs, fp16 is several times slower (no tensor cores).
 
-Logs are in `logs/`. Remove the daily task with `scripts\install_task.ps1 -Remove`.
+Logs are in `logs/`, one file per day; each run starts with a line showing its options and how long
+startup took. Remove the daily task with `scripts\install_task.ps1 -Remove`.
