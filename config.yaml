@@ -1,0 +1,151 @@
+# Research digest configuration.
+# Edit the profile below as your research evolves; the ranking re-reads it every run.
+# Tip: after editing, preview the effect without spending Claude usage or marking papers as seen:
+#   .venv\Scripts\python.exe read_journal.py --no-fetch --no-notes --dry-run   (-> digests\preview.html)
+
+profile:
+  # Given to Claude when it writes the notes. Plain language, first person, specific.
+  summary: |
+    I am a graduate student working on RayBNN, a 3D ray-traced biological neural network.
+    Neurons are placed inside a 3D sphere at a roughly constant density (about 1% collision
+    rate), and connections are formed by ray tracing between nearby neurons. The result is a
+    sparse recurrent network whose signals propagate over several time steps. It is
+    implemented in Rust with ArrayFire on GPUs, and I run experiments on an HPC cluster.
+    My current work uses RayBNN as the classifier on top of a CNN feature extractor
+    (transfer learning), benchmarked on CIFAR-100 against ResNet-20 with a linear classifier.
+    Current experiments: a sweep over alpha (the growth rate of the network between stages)
+    with 3D accuracy plots, fair GPU-only timing comparisons, comparison with an
+    equivalent-depth MLP, and two architectural changes: injecting the input at every time
+    step and summing outputs over time steps. Hyperparameters I tune include neuron
+    density, trajectory size and steps, propagation steps, and self-loops. RayBNN has also
+    been applied to Wi-Fi indoor localization (Alcala dataset).
+    I am looking for ideas I can realistically try in this setup within weeks: training
+    tricks, architectural changes, sparse/recurrent dynamics, better baselines, efficiency.
+
+  # Each topic is a set of short "search queries"; a paper's relevance is its best match.
+  # boost_keywords add a small bonus when they appear (whole-word, case-insensitive).
+  topics:
+    bio_sparse:
+      label: Bio-inspired / sparse nets
+      queries:
+        - biologically inspired neural network with neurons placed in 3D space and distance-dependent connectivity
+        - sparse recurrent neural network where signals propagate over multiple time steps
+        - growing neural networks during training by adding neurons and connections (neurogenesis)
+        - reservoir computing, echo state networks and liquid state machines
+        - spiking neural networks and neuromorphic computing
+        - connectome-constrained or brain-inspired network topology
+        - small-world, modular or spatially embedded network wiring with wiring cost
+        - continuous-time or liquid time-constant recurrent neural networks
+      boost_keywords: [spiking, reservoir computing, echo state, liquid state machine, neuromorphic,
+                       connectome, neurogenesis, biologically plausible, bio-inspired, brain-inspired,
+                       sparse connectivity, spatially embedded, ray tracing, ray-traced, small-world]
+    training:
+      label: Training alternatives
+      queries:
+        - alternatives to backpropagation such as local learning rules, Hebbian plasticity and the forward-forward algorithm
+        - dynamic sparse training and sparse-to-sparse training of neural networks
+        - pruning and the lottery ticket hypothesis for finding sparse subnetworks
+        - backpropagation through time for sparse recurrent networks with truncated or approximate gradients
+        - learning the network topology and connectivity jointly with the weights
+        - biologically plausible credit assignment, feedback alignment and equilibrium propagation
+      boost_keywords: [forward-forward, hebbian, feedback alignment, equilibrium propagation,
+                       local learning, dynamic sparse training, lottery ticket, pruning,
+                       backpropagation through time, credit assignment, synaptic plasticity]
+    transfer:
+      label: Transfer learning & efficiency
+      queries:
+        - frozen pretrained CNN features with a new classifier head and linear probing
+        - replacing the classifier of a ResNet with an alternative model on CIFAR-100
+        - efficient sparse matrix computation on GPUs for training neural networks
+        - fair benchmarking of training time and accuracy against MLP baselines
+        - progressive growth of network width or depth during training
+      boost_keywords: [linear probe, linear probing, transfer learning, feature extractor,
+                       CIFAR-100, sparse matrix, SpMM, GPU kernel, ResNet-20]
+    wifi:
+      label: Wi-Fi / indoor localization
+      queries:
+        - indoor localization using Wi-Fi RSSI fingerprinting with neural networks
+        - channel state information (CSI) based positioning and sensing
+        - domain shift across devices and time in fingerprint-based localization
+        - learning from tabular sensor measurements with many missing values
+      boost_keywords: [indoor localization, indoor positioning, fingerprinting, RSSI,
+                       channel state information, Wi-Fi, WiFi, UJIIndoorLoc]
+
+  # Themes to push down when a paper is closer to them than to any topic above.
+  avoid:
+    - large language model alignment, RLHF, instruction tuning and chatbots
+    - LLM agents, tool use, prompt engineering and jailbreaks
+    - text-to-image and video diffusion generation
+    - efficient inference and serving of large language models, KV cache, sparse attention, long context, quantization of LLMs
+
+sources:
+  conferences:
+    enabled: true
+    venues: [nips, icml, iclr, aaai]   # folders in github.com/papercopilot/paperlists
+    years_back: 3                      # current year and the two before it
+    include_workshops: false
+    check_every_days: 7                # how often to look for updated conference lists
+    openalex_api_key: ""               # optional, free at https://openalex.org/settings/api; only
+                                       # used for AAAI years missing from the mirror (AAAI 2026)
+  arxiv:
+    enabled: true
+    categories: [cs.NE, cs.LG, q-bio.NC, eess.SP]
+    first_run_days: 7                  # look-back on the very first run
+    max_results: 6000                  # safety cap per run
+  hf_daily:
+    enabled: true
+    first_run_days: 7
+  emergent_mind:
+    enabled: true
+    url: https://www.emergentmind.com/feeds/rss
+  alphaxiv:
+    enabled: true
+  blogs:
+    enabled: true
+    max_age_days: 30                   # ignore posts older than this
+    max_per_feed: 15                   # newest posts kept per feed per run (OpenAI posts a lot)
+    rss:
+      Google DeepMind: https://deepmind.google/blog/rss.xml
+      Google Research: https://research.google/blog/rss/
+      BAIR: https://bair.berkeley.edu/blog/feed.xml
+      Microsoft Research: https://www.microsoft.com/en-us/research/feed/
+      Apple ML Research: https://machinelearning.apple.com/rss.xml
+      NVIDIA Research: https://research.nvidia.com/rss.xml
+      Ai2: https://allenai.org/rss.xml
+      Sakana AI: https://sakana.ai/feed.xml
+      Hugging Face: https://huggingface.co/blog/feed.xml
+      OpenAI: https://openai.com/news/rss.xml
+      The Gradient: https://thegradient.pub/rss/
+      Lil'Log: https://lilianweng.github.io/index.xml
+      Sebastian Raschka: https://magazine.sebastianraschka.com/feed
+      Thousand Brains Project: https://thousandbrains.org/feed/
+    eleutherai: true                   # no RSS feed; read from the blog page
+
+ranking:
+  model: BAAI/bge-base-en-v1.5
+  device: auto                         # auto | cuda | cpu
+  batch_size: 64
+  max_tokens: 320                      # title + abstract are truncated to this many tokens
+  fp16: false                          # keep false on GTX 16xx laptops (fp16 is much slower there)
+  fresh_days: 14                       # "new" = published within this many days
+  keyword_boost: 0.02                  # per keyword hit
+  keyword_boost_max: 0.05
+
+digest:
+  notes_top: 10                        # papers that get Claude's written notes
+  fresh_candidates: 12                 # new papers sent to Claude for review
+  archive_candidates: 12               # conference/back-catalogue papers sent to Claude
+  min_per_topic: 1                     # each topic gets at least this many slots per list, so
+                                       # topics with naturally lower scores (Wi-Fi) still surface
+  also_new: 15                         # "also relevant" lists (title + score + link)
+  also_archive: 15
+  labs: 8                              # lab blog posts listed...
+  labs_min_score: 0.70                 # ...only if at least this relevant (0 = list all recent posts)
+  trending: 6                          # community-trending papers listed (any topic)
+  output_dir: digests
+
+claude:
+  enabled: true
+  model: opus
+  timeout_seconds: 900
+  path: ""                             # leave empty to find `claude` on PATH or in ~/.local/bin
